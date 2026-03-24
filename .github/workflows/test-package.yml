@@ -1,53 +1,11 @@
-name: Test IPQ-WIFI Package
-
-on:
-  push:
-    paths:
-      - 'package/firmware/ipq-wifi/**'
-      - '.github/workflows/test-package.yml'
-  workflow_dispatch: # 允许手动触发
-
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    env:
-      TARGET: qualcommax
-      SUBTARGET: ipq807x
-
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Build Environment Setup
+      - name: Compile IPQ-WIFI Package Only
         run: |
-          sudo apt-get update
-          sudo apt-get install -y build-essential ccache ecj fastjar file g++ gawk \
-          gettext git java-propose-classpath libelf-dev libncurses5-dev \
-          libncursesw5-dev libssl-dev python3-setuptools \
-          python3-dev rsync subversion swig time xsltproc zlib1g-dev
-
-      - name: Compile Package
-        run: |
-          # 假设你的仓库已经是完整的 OpenWrt 源码结构
-          # 如果不是（例如你只是 fork 了配置），你需要先克隆 openwrt 并应用你的 patch
-          # 这里假设你的仓库就是完整的 openwrt 源码 + 你的修改
+          export TERM=linux
           
           ./scripts/feeds update -a
           ./scripts/feeds install -a
           
-          # 生成默认配置，确保选中了 qualcommax 目标
-          make target/linux/${TARGET}/config-defconfig
-          
-          # 开始编译特定的包
-          make package/firmware/ipq-wifi/compile V=s
-
-      - name: Upload Result
-        uses: actions/upload-artifact@v4
-        if: always() # 即使失败也尝试上传日志或现有文件
-        with:
-          name: compiled-ipk
-          path: |
-            bin/packages/*/base/ipq-wifi-*.ipk
-            logs/package/*.txt
+          # 直接编译包，不生成整个目标的 config
+          # 如果缺少 .config，make 通常会尝试创建一个最小的默认 config
+          # 为了防止交互提示，我们再次使用 yes
+          yes '' | make package/firmware/ipq-wifi/compile V=s
