@@ -110,7 +110,8 @@ ALLWIFIBOARDS:= \
 	redmi_ax5-jdcloud \
 	verizon_cr1000a \
 	xiaomi_ax1800 \
-	zn_m2
+	zn_m2 \
+	inseego_fg2000 
 
 ALLWIFIPACKAGES:=$(foreach BOARD,$(ALLWIFIBOARDS),ipq-wifi-$(BOARD))
 
@@ -297,5 +298,6 @@ $(eval $(call generate-ipq-wifi-package,redmi_ax5-jdcloud,Redmi AX5 JDCloud))
 $(eval $(call generate-ipq-wifi-package,verizon_cr1000a,Verizon CR1000A))
 $(eval $(call generate-ipq-wifi-package,xiaomi_ax1800,Xiaomi AX1800))
 $(eval $(call generate-ipq-wifi-package,zn_m2,ZN M2))
+$(eval $(call generate-ipq-wifi-package,inseego_fg2000,Inseego FG2000)) 
 
 $(foreach PACKAGE,$(ALLWIFIPACKAGES),$(eval $(call BuildPackage,$(PACKAGE))))
