@@ -1,3 +1,33 @@
+name: Test IPQ-WIFI Package
+
+on:
+  push:
+    paths:
+      - 'package/firmware/ipq-wifi/**'
+      - '.github/workflows/test-package.yml'
+  workflow_dispatch: # 允许手动触发
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      TARGET: qualcommax
+      SUBTARGET: ipq807x
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Build Environment Setup
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential ccache ecj fastjar file g++ gawk \
+          gettext git java-propose-classpath libelf-dev libncurses5-dev \
+          libncursesw5-dev libssl-dev python3-setuptools \
+          python3-dev rsync subversion swig time xsltproc zlib1g-dev
+          
       - name: Compile IPQ-WIFI Package Only
         run: |
           export TERM=linux
@@ -9,3 +39,12 @@
           # 如果缺少 .config，make 通常会尝试创建一个最小的默认 config
           # 为了防止交互提示，我们再次使用 yes
           yes '' | make package/firmware/ipq-wifi/compile V=s
+          
+      - name: Upload Result
+        uses: actions/upload-artifact@v4
+        if: always() # 即使失败也尝试上传日志或现有文件
+        with:
+          name: compiled-ipk
+          path: |
+            bin/packages/*/base/ipq-wifi-*.ipk
+            logs/package/*.txt
